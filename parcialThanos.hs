@@ -25,13 +25,13 @@ guanteleteThanos :: Guantelete
 guanteleteThanos = CrearGuantelete "uru" [] 
 
 wolverine :: Personaje
-wolverine = CrearPersonaje "Wolverine" 45 100 ["saltar","correr"] "Tuvieja"
+wolverine = CrearPersonaje "Wolverine" 45 100 ["saltar","correr"] "Cilindro de Avellaneda"
 
 capitanAmerica :: Personaje
-capitanAmerica = CrearPersonaje "capitanAmerica" 45 100 [] "Tuvieja"
+capitanAmerica = CrearPersonaje "capitanAmerica" 45 100 [] "Cilindro de Avellaneda"
 
 hulk :: Personaje
-hulk = CrearPersonaje "hulk" 45 100 [] "Tuvieja"
+hulk = CrearPersonaje "hulk" 45 100 [] "Cilindro de Avellaneda"
 
 estaCompletoElGuantelete :: Guantelete -> Bool
 estaCompletoElGuantelete unGuantelete = (length.gemas) unGuantelete == 6
@@ -68,7 +68,7 @@ cambiarPlaneta unPlaneta unPersonaje = unPersonaje { planeta = unPlaneta}
 sacarHabilidad :: Habilidad -> Personaje -> Personaje
 sacarHabilidad unaHabilidad unPersonaje = unPersonaje { habilidades = (filter (/=unaHabilidad).habilidades) unPersonaje }  
 
-vaciarHabilidades :: Personaje -> Personaje
+vaciarHabilidades :: Personaje -> Personaje 
 vaciarHabilidades unPersonaje = unPersonaje {habilidades = []}
 
 esMenorEdad :: Int -> Bool
@@ -102,3 +102,42 @@ elTiempo unOponente = (reducirEdad.cambiarEnergia (-50)) unOponente
 
 laGemaLoca :: Gema -> Gema
 laGemaLoca unaGema = (unaGema.unaGema)
+
+-- Punto 5
+guanteleDeGoma :: Guantelete
+guanteleDeGoma = CrearGuantelete "goma" [elTiempo, (elAlma "usar Mjolnir"), laGemaLoca (elAlma "programacion en Haskell")]
+
+--Punto 6 --> Crea un nuevo oponente con las gemas de la lista de gemas, ya aplicadas, que , fueron previamente aplicadas entre si, devolviendo una unica gema.
+-- Es decir, se crea un nuevo oponente, con la gema aplicada (la gema que compone todas las gemas aplicadas).
+utilizar :: [Gema] -> Personaje -> Personaje
+utilizar listaGemas unOponente = foldl1 (.) listaGemas $ unOponente
+
+--Punto 6
+delInfinito :: Guantelete -> Personaje -> Gema
+delInfinito unGuantelete unPersonaje = gemaMasPoderosa (gemas unGuantelete) unPersonaje
+
+gemaMasPoderosa :: [Gema] -> Personaje -> Gema
+gemaMasPoderosa unaGema _ = head unaGema
+gemaMasPoderosa (primera: segunda : cola) unPersonaje
+    | (energia.primera $ unPersonaje ) > (energia.segunda $ unPersonaje) = gemaMasPoderosa (primera:cola) unPersonaje
+    | otherwise = gemaMasPoderosa (segunda:cola) unPersonaje
+
+-- Punto 7
+infinitasGemas :: Gema -> [Gema]
+infinitasGemas gema = gema:(infinitasGemas gema)
+
+guanteleteDeLocos :: Guantelete
+guanteleteDeLocos = CrearGuantelete "vesconite" (infinitasGemas elTiempo)
+
+usoLasTresPrimerasGemas :: Guantelete -> Personaje -> Personaje
+usoLasTresPrimerasGemas unGuantelete = (utilizar . take 3. gemas) unGuantelete
+
+--1) No se puede, dado que mi guantelete va a tener infinitas gemas, y al entrar en la comparacion de gemas, usando la funcion
+-- gemaMasPoderosa nunca terminaria de comparar, dado a que tendra siempre una cola, por comparar, por mi lista infinita de gemas.
+
+--2)Si se puede, dado que take 3, por mas que cree una lista infinita de gemas, su tipo de trabajo es call-by-name usando lazy evaluation
+--es decir, no espera a que termine la lista infinita de gemas, si no una vez que tiene 3, las agarra. Por lo tanto
+-- se puede aplicar dicha funcion.
+
+
+
